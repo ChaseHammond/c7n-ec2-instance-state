@@ -1,0 +1,24 @@
+policies:   
+  - name: ec2-state-change     
+    resource: ec2     
+    description: |       
+      If any EC2 instance is created or deleted the Teams Webhook will be notified.         
+      This will ensure no shadow IT or unapproved instances are being deployed or terminated without notification.     
+    mode:       
+      type: ec2-instance-state       
+      role: <IAMarn>      
+      events:         
+        - stopping                 
+        - running     
+    actions:       
+      - type: webhook         
+        url: <Teams Webhook URL>        
+        batch: false         
+        body: >           
+          {             
+            "@context": `https://schema.org/extensions`,             
+            "@type": `MessageCard`,             
+            "title": `Instance State Changed`,             
+            "text": join('', [`The instance: `, resource.InstanceId, `: `, `in account: `, account_id, `: has changed to: `, event.detail.state])           
+}
+
