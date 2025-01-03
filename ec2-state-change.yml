@@ -8,7 +8,7 @@ policies:
       type: ec2-instance-state       
       role: <IAMarn>      
       events:         
-        - stopping                 
+        - terminated                 
         - running     
     actions:       
       - type: webhook         
