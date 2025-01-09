@@ -1,24 +1,24 @@
-policies:   
-  - name: ec2-state-change     
-    resource: ec2     
-    description: |       
-      If any EC2 instance is created or deleted the Teams Webhook will be notified.         
-      This will ensure no shadow IT or unapproved instances are being deployed or terminated without notification.     
-    mode:       
-      type: ec2-instance-state       
-      role: <IAMarn>      
-      events:         
-        - terminated                 
-        - running     
-    actions:       
-      - type: webhook         
-        url: <Teams Webhook URL>        
-        batch: false         
-        body: >           
-          {             
-            "@context": `https://schema.org/extensions`,             
-            "@type": `MessageCard`,             
-            "title": `Instance State Changed`,             
-            "text": join('', [`The instance: `, resource.InstanceId, `: `, `in account: `, account_id, `: has changed to: `, event.detail.state])           
-}
+policies:
+  - name: ec2-state-change
+    resource: ec2
+    description: |
+      If any EC2 instance is created or deleted the S&C team will be notified through their Teams channel.  
+      This will ensure no shadow IT or unapproved instances are being deployed or terminated without notification.
+    mode:
+      type: ec2-instance-state
+      role: arn:aws:iam:<role>
+      events:
+        - stopping
+        - running
+    actions:
+      - type: webhook
+        URL: <Teams webhook URL>
+        batch: false
+        body: >
+          {
+              "@context": `https://schema.org/extensions`,
+              "@type": `MessageCard`,
+              "title": `Instance State Changed`,
+              "text": join('', [`Instance ID: `,resource.InstanceId, `\n\n`, `Instance Name: `,resource.Tags[?Key=='Name'].Value | [0] | @, `\n\n`, `Account: `,account_id, `\n\n`, `State: `,event.detail.state, `\n\n`, `Creator: `, resource.Tags[?Key=='CreatorName'].Value | [0] | @])
+          }
 
